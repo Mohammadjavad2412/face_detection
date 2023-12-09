@@ -1,11 +1,34 @@
 from deepface import DeepFace
 from retinaface import RetinaFace
-import os
 import cv2
 import matplotlib.pyplot as plt
 import logging
 import traceback
 
+
+models = [
+  "VGG-Face", 
+  "Facenet", 
+  "Facenet512", 
+  "OpenFace", 
+  "DeepFace", 
+  "DeepID", 
+  "ArcFace", 
+  "Dlib", 
+  "SFace",
+]
+
+backends = [
+  'opencv', 
+  'ssd', 
+  'dlib', 
+  'mtcnn', 
+  'retinaface', 
+  'mediapipe',
+  'yolov8',
+  'yunet',
+  'fastmtcnn',
+]
 class FaceRecognition:
 
     def verify(self, img1_path, img2_path):
@@ -19,7 +42,7 @@ class FaceRecognition:
             plt.imshow(img2[:, :, ::-1])
             plt.show()
 
-            output = DeepFace.verify(img1_path, img2_path, enforce_detection=False)
+            output = DeepFace.verify(img1_path, img2_path, detector_backend=backends[3] ,model_name='DeepFace')
             print(output)
             verification = output['verified']
             if verification:
@@ -29,14 +52,23 @@ class FaceRecognition:
         except:
             logging.error(traceback.format_exc())
 
-    def image_information(self, image_path):
-        face = RetinaFace.extract_faces(image_path)
-        result = DeepFace.analyze(face, detector_backend='skip')
-        print(result)
+    def image_information(self, image_path, db_path):
+        # result = DeepFace.analyze(image_path, enforce_detection=False)
+        for i in range(len(models)):  
+          findings = DeepFace.find(image_path, "/home/mj/Desktop/documents/3d_images_art", enforce_detection=False ,detector_backend=backends[9], model_name=models[i])
+          print(models[i])
+          print(findings)
+        # print(result)
 
-first_img = "/home/mohammadjavad/Desktop/face/10.jpg"
-second_img = "/home/mohammadjavad/Desktop/face/4.jpg"
-thired_img = "/home/mohammadjavad/Desktop/face/6.jpg"
+
+    def stream_face_detection(self, db_path):
+        DeepFace.stream(db_path, model_name=models[0], frame_threshold=20,distance_metric='cosine', enable_face_analysis=False, detector_backend=backends[0])
+
+first_img = "/home/mj/Desktop/documents/3d_images_art/4.jpg"
+second_img = "/home/mj/Desktop/documents/3d_images_art/5.jpg"
+thired_img = "/home/mj/Desktop/documents/3d_images_art/4.jpg"
+db_path = "/home/mj/Desktop/documents/3d_images_art/general"
 face_recog=FaceRecognition()
-face_recog.verify(first_img, thired_img)
-face_recog.image_information(thired_img)
+# face_recog.verify(first_img, second_img)
+# face_recog.image_information(thired_img, db_path)
+face_recog.stream_face_detection(db_path)
